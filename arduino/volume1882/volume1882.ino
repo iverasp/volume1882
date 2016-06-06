@@ -11,16 +11,27 @@ const int encMax = 62;
 const short encDiv = 4; // encoder counts 4 steps per click
 Encoder encoder(encB, encA);
 
-const int buttonPin = 4;
-int buttonState;
-int lastButtonState = LOW;
-long lastDebounceTime = 0;
+const int muteButtonPin = 4;
+int muteButtonState;
+int lastMuteButtonState = LOW;
+long lastMuteDebounceTime = 0;
 long debounceDelay = 50;
-int buttonPresses = 0;
+
+const int outputSelectPin = 7;
+int outputSelectState;
+int lastOutputSelectState;
+long lastOutputSelectDebounceTime = 0;
+const int outputRelayPin = 8;
+const int headphonesOutput = 0;
+const int powerampOutput = 1;
 
 bool mute = false;
 byte muteAddress = 0;
 byte attenuationAddress = 1;
+byte headphonesMuteAddress = 0;
+byte headphonesAttenuationAddress = 1;
+byte powerampMuteAddress = 2;
+byte powerampAttenuationAddress = 3;
 byte lastAttenuation;
 byte muteAttenuation = 63;
 byte fadeStart = 50;
@@ -68,19 +79,11 @@ void setup() {
     byte error = Wire.endTransmission();
     Serial.println(error);
   }
-  
-  mute = EEPROM.read(muteAddress);
-  byte currentAttenuation = EEPROM.read(attenuationAddress);
-  Serial.print("Attenuation is ");
-  Serial.println(currentAttenuation);
-  encoder.write(currentAttenuation * encDiv);
-  lastAttenuation = currentAttenuation;
-  lastStoredAttenuation = currentAttenuation;
-  if (mute) {
-    adjustAttenuation(muteAttenuation);
-  } else {
-    adjustAttenuation(currentAttenuation);
-  }
+
+  pinMode(outputSelectPin, INPUT);
+  int lastOutputSelectState = digitalRead(outputSelectPin);
+  pinMode(outputRelayPin, OUTPUT);
+  selectOutput(digitalRead(outputSelectPin));
 }
 
 void loop() {
@@ -104,7 +107,8 @@ void loop() {
     }
     delay(30);
   }
-  readButton();
+  readMuteButton();
+  readToggleSwitch();
 }
 
 long readEncoder() {
@@ -120,20 +124,34 @@ long readEncoder() {
   return value / encDiv;
 }
 
-void readButton() {
-  int reading = digitalRead(buttonPin);
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
+void readMuteButton() {
+  int reading = digitalRead(muteButtonPin);
+  if (reading != lastMuteButtonState) {
+    lastMuteDebounceTime = millis();
   }
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != buttonState) {
-      buttonState = reading;
-      if (buttonState == HIGH) {
+  if ((millis() - lastMuteDebounceTime) > debounceDelay) {
+    if (reading != muteButtonState) {
+      muteButtonState = reading;
+      if (muteButtonState == HIGH) {
         toggleMute();
       }
     }
   }
-  lastButtonState = reading;
+  lastMuteButtonState = reading;
+}
+
+void readToggleSwitch() {
+  int reading = digitalRead(outputSelectPin);
+  if (reading != lastOutputSelectState) {
+    lastOutputSelectDebounceTime = millis();
+  }
+  if ((millis() - lastOutputSelectDebounceTime) > debounceDelay) {
+    if (reading != outputSelectState) {
+      outputSelectState = reading;
+      selectOutput(outputSelectState);
+    }
+  }
+  lastOutputSelectState = reading;
 }
 
 void toggleMute() {
@@ -175,6 +193,33 @@ void storeAttenuation(long value) {
     Serial.println("Saving attenuation value to EEPROM...");
     EEPROM.write(attenuationAddress, value);
     lastStoredAttenuation = value;
+  }
+}
+
+void selectOutput(byte output) {
+  if (output == 0) {
+    Serial.println("Switching output to headphones");
+    muteAddress = headphonesMuteAddress;
+    attenuationAddress = headphonesAttenuationAddress;
+  } else if (output == 1) {
+    Serial.println("Switching output to poweramp");
+    muteAddress = powerampMuteAddress;
+    attenuationAddress = powerampAttenuationAddress;
+  }
+  digitalWrite(outputRelayPin, output);
+  setInitialValues();
+}
+
+void setInitialValues() {
+  mute = EEPROM.read(muteAddress);
+  byte currentAttenuation = EEPROM.read(attenuationAddress);
+  encoder.write(currentAttenuation * encDiv);
+  lastAttenuation = currentAttenuation;
+  lastStoredAttenuation = currentAttenuation;
+  if (mute) {
+    adjustAttenuation(muteAttenuation);
+  } else {
+    adjustAttenuation(currentAttenuation);
   }
 }
 
