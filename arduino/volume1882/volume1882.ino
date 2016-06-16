@@ -54,16 +54,16 @@ void setup() {
   pinMode(potVdd, OUTPUT);
   digitalWrite(potVdd, HIGH);
   
-  Serial.begin(9600);
-  Serial.println("Starting execution");
+  //Serial.begin(9600);
+  //Serial.println("Starting execution");
   
   Wire.begin();
   //TWBR = 12; // Sets i2c speed to 400kHz (max)
   Wire.beginTransmission(potAddress);
   byte error = Wire.endTransmission();
   if (error == 0) {
-    Serial.print("DS1882 found at address ");
-    Serial.println(potAddress);
+    //Serial.print("DS1882 found at address ");
+    //Serial.println(potAddress);
   }
   Wire.requestFrom(potAddress, 3); // read pot0, pot1 and config
   byte pot1, pot2, conf;
@@ -73,11 +73,11 @@ void setup() {
     conf = Wire.read();
   }
   if (conf != potConfig) {
-    Serial.println("DS1882 config is incorrect. Uploading correct config...");
+    //Serial.println("DS1882 config is incorrect. Uploading correct config...");
     Wire.beginTransmission(potAddress);
     Wire.write(potConfig);
     byte error = Wire.endTransmission();
-    Serial.println(error);
+    //Serial.println(error);
   }
 
   pinMode(outputSelectPin, INPUT);
@@ -172,11 +172,11 @@ void toggleMute() {
 void adjustAttenuation(long value) {
   if (value != muteAttenuation) {
     lastAttenuation = value;
-    Serial.print("Adjusting attenuation to ");
-    Serial.print(value);
-    Serial.println(" dB");
+    //Serial.print("Adjusting attenuation to ");
+    //Serial.print(value);
+    //Serial.println(" dB");
   } else {
-    Serial.println("Muting");
+    //Serial.println("Muting");
   }
 
   Wire.beginTransmission(potAddress);
@@ -190,19 +190,20 @@ void adjustAttenuation(long value) {
 
 void storeAttenuation(long value) {
   if (lastStoredAttenuation != value) {
-    Serial.println("Saving attenuation value to EEPROM...");
+    //Serial.println("Saving attenuation value to EEPROM...");
     EEPROM.write(attenuationAddress, value);
     lastStoredAttenuation = value;
   }
 }
 
 void selectOutput(byte output) {
+  storeAttenuation(readEncoder());
   if (output == 0) {
-    Serial.println("Switching output to headphones");
+    //Serial.println("Switching output to headphones");
     muteAddress = headphonesMuteAddress;
     attenuationAddress = headphonesAttenuationAddress;
   } else if (output == 1) {
-    Serial.println("Switching output to poweramp");
+    //Serial.println("Switching output to poweramp");
     muteAddress = powerampMuteAddress;
     attenuationAddress = powerampAttenuationAddress;
   }

@@ -13615,6 +13615,9 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="C9" library="resistor" deviceset="CPOL-EU" device="E2-5" value="10µF"/>
 <part name="C10" library="resistor" deviceset="CPOL-EU" device="E2-5" value="1µF"/>
 <part name="C11" library="resistor" deviceset="CPOL-EU" device="E2-5" value="0.1µF"/>
+<part name="REMOTE" library="con-lstb" deviceset="MA03-1" device=""/>
+<part name="GND26" library="supply1" deviceset="GND" device=""/>
+<part name="P+12" library="supply1" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -13701,6 +13704,9 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <instance part="C9" gate="G$1" x="99.06" y="149.86" rot="R180"/>
 <instance part="C10" gate="G$1" x="99.06" y="200.66"/>
 <instance part="C11" gate="G$1" x="48.26" y="200.66"/>
+<instance part="REMOTE" gate="G$1" x="254" y="10.16" rot="R180"/>
+<instance part="GND26" gate="1" x="241.3" y="10.16" rot="R270"/>
+<instance part="P+12" gate="VCC" x="241.3" y="7.62" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -13857,6 +13863,11 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <pinref part="LED_OUTPUT" gate="G$1" pin="1"/>
 <wire x1="241.3" y1="124.46" x2="246.38" y2="124.46" width="0.1524" layer="91"/>
 </segment>
+<segment>
+<pinref part="REMOTE" gate="G$1" pin="2"/>
+<pinref part="GND26" gate="1" pin="GND"/>
+<wire x1="246.38" y1="10.16" x2="243.84" y2="10.16" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="V-" class="0">
 <segment>
@@ -13942,6 +13953,11 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <pinref part="RELAY" gate="G$1" pin="2"/>
 <pinref part="P+11" gate="VCC" pin="VCC"/>
 <wire x1="246.38" y1="43.18" x2="243.84" y2="43.18" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="REMOTE" gate="G$1" pin="3"/>
+<pinref part="P+12" gate="VCC" pin="VCC"/>
+<wire x1="246.38" y1="7.62" x2="243.84" y2="7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="V+" class="0">
@@ -14302,6 +14318,15 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <segment>
 <pinref part="LED_OUTPUT" gate="G$1" pin="3"/>
 <pinref part="R14" gate="G$1" pin="2"/>
+</segment>
+</net>
+<net name="N$33" class="0">
+<segment>
+<pinref part="REMOTE" gate="G$1" pin="1"/>
+<wire x1="246.38" y1="12.7" x2="205.74" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="12.7" x2="205.74" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="U2" gate="U$1" pin="PB0(ICP)"/>
+<wire x1="205.74" y1="53.34" x2="198.12" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
